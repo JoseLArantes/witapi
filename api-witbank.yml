@@ -1,0 +1,410 @@
+swagger: "2.0"
+info:
+  description: "witbank api"
+  version: "v1"
+  title: "witbank topup api"
+  termsOfService: "http://swagger.io/terms/"
+  contact:
+    email: "leandro.storoli@witbank.com.br"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+host: "api.witbank.com.br"
+basePath: "/v1"
+consumes:
+  - "application/json"
+produces:
+  - "application/json"
+tags:
+  - name: "carrier"
+    description: "Carrier operations"
+  - name: "topup"
+    description: "TopUp operations"
+schemes:
+  - "https"
+paths:
+  /carriers:
+    get:
+      tags:
+        - "carrier"
+      summary: "get all carriers"
+      description: "return all carriers available that can be filtered by ddd"
+      operationId: "getCarriers"
+      parameters:
+        - name: "ddd"
+          in: "query"
+          description: "area code"
+          type: "string"
+        - name: "offset"
+          in: "query"
+          description: "number of records to skip for pagination"
+          type: "number"
+        - name: "limit"
+          in: "query"
+          description: "number of records must be returned for pagination"
+          type: "number"
+        - name: "fields"
+          in: "query"
+          description: "field names that must be returned in the response"
+          type: "string"
+      responses:
+        200:
+          description: "ok"
+          schema:
+            $ref: "#/definitions/GetCarriersResponse"
+        401:
+          description: |
+            "unauthorized - the jwt token is missing"
+        500:
+          description: |
+            "technical_error - ops! something went wrong!"
+  /carriers/:slug:
+    get:
+      tags:
+        - "carrier"
+      summary: "get a carrier by a slug (carrier unique name)"
+      description: "returns a carrier based on its unique name"
+      operationId: "getCarrierBySlug"
+      parameters:
+        - name: "slug"
+          in: "path"
+          description: "unique string identifier of the carrier - vivo, tim, claro"
+          type: "string"
+          required: true
+        - name: "fields"
+          in: "query"
+          description: "field names that must be returned in the response"
+          type: "string"
+      responses:
+        200:
+          description: "ok"
+          schema:
+            $ref: "#/definitions/CarrierResponse"
+        401:
+          description: |
+            "unauthorized - the jwt token is missing"
+        500:
+          description: |
+            "technical_error - ops! something went wrong!"
+  /carriers/:id:
+    get:
+      tags:
+        - "carrier"
+      summary: "get a carrier by id"
+      description: "returns a carrier from a uuid"
+      operationId: "getCarrierById"
+      parameters:
+        - name: "id"
+          in: "path"
+          description: "id of the carrier"
+          type: "string"
+          required: true
+        - name: "fields"
+          in: "query"
+          description: "field names that must be returned in the response"
+          type: "string"
+      responses:
+        200:
+          description: "ok"
+          schema:
+            $ref: "#/definitions/CarrierResponse"
+        401:
+          description: |
+            "unauthorized - the jwt token is missing"
+        500:
+          description: |
+            "technical_error - ops! something went wrong!"
+  /carriers/:slug/offers:
+    get:
+      tags:
+        - "carrier"
+      summary: "get offers from a specific carrier"
+      description: "returns offers provided by a specific carrier"
+      operationId: "getCarrierOffers"
+      parameters:
+        - name: "slug"
+          in: "path"
+          description: "unique string identifier of the carrier - vivo, tim, claro"
+          type: "string"
+          required: true
+        - name: "ddd"
+          in: "query"
+          description: "area code"
+          type: "string"
+        - name: "offset"
+          in: "query"
+          description: "number of records to skip for pagination"
+          type: "number"
+        - name: "limit"
+          in: "query"
+          description: "number of records must be returned for pagination"
+          type: "number"
+        - name: "fields"
+          in: "query"
+          description: "field names that must be returned in the response"
+          type: "string"
+      responses:
+        200:
+          description: "ok"
+          schema:
+            $ref: "#/definitions/GetOffersResponse"
+        401:
+          description: |
+            "unauthorized - the jwt token is missing"
+        500:
+          description: |
+            "technical_error - ops! something went wrong!"
+  /topups:
+    get:
+      tags:
+        - "topup"
+      summary: "get all topups done by a client"
+      description: "return all topups created by a client"
+      operationId: "getTopups"
+      parameters:
+        - name: "ddd"
+          in: "query"
+          description: "area code"
+          type: "string"
+        - name: "number"
+          in: "query"
+          description: "phone number"
+          type: "string"
+        - name: "offset"
+          in: "query"
+          description: "number of records to skip for pagination"
+          type: "number"
+        - name: "limit"
+          in: "query"
+          description: "number of records must be returned for pagination"
+          type: "number"
+        - name: "fields"
+          in: "query"
+          description: "field names that must be returned in the response"
+          type: "string"
+      responses:
+        200:
+          description: "ok"
+          schema:
+            $ref: "#/definitions/GetTopUpsResponse"
+        401:
+          description: |
+            "unauthorized - the jwt token is missing"
+        500:
+          description: |
+            "technical_error - ops! something went wrong!"
+    post:
+      tags:
+        - "topup"
+      summary: "create a topup from a specific offer"
+      description: "creates a topup with a specific carrier and offer"
+      operationId: "createTopup"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "topup info"
+          required: true
+          schema:
+            $ref: "#/definitions/TopUpRequest"
+      responses:
+        200:
+          description: "ok"
+          schema:
+            $ref: "#/definitions/TopUpResponse"
+        401:
+          description: |
+            "unauthorized - the jwt token is missing"
+        500:
+          description: |
+            "technical_error - ops! something went wrong!"
+  /topups/:id:
+    get:
+      tags:
+        - "topup"
+      summary: "get a topup based on its id"
+      description: "returns a topup bases on its id"
+      operationId: "getTopupById"
+      parameters:
+        - name: "id"
+          in: "path"
+          description: "id of the topup"
+          type: "string"
+          required: true
+        - name: "fields"
+          in: "query"
+          description: "field names that must be returned in the response"
+          type: "string"
+      responses:
+        200:
+          description: "ok"
+          schema:
+            $ref: "#/definitions/TopUpResponse"
+        401:
+          description: |
+            "unauthorized - the jwt token is missing"
+        500:
+          description: |
+            "technical_error - ops! something went wrong!"
+securityDefinitions:
+  api_key:
+    type: "apiKey"
+    name: "api_key"
+    in: "header"
+definitions:
+  ListDataResponse:
+    type: "object"
+    properties:
+      meta:
+        type: "object"
+        properties:
+          offset:
+            type: "integer"
+          limit:
+            type: "integer"
+          total:
+            type: "integer"
+  CarrierResponse:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        description: "ID of the Carrier in the UUID-4 format"
+        example: "ac910006-e8b3-4229-b928-eafdeb7d75c3"
+      slug:
+        type: "string"
+        description: "Unique string identifier of the Carrier - vivo, tim, claro"
+        example: vivo
+      name:
+        type: "string"
+        description: "Name of the carrier"
+        example: "VIVO"
+      country:
+        type: "string"
+        description: "Country of the carrier based on ISO-3166-1 Alpha 2 code"
+        example: "BR"
+  GetCarriersResponse:
+    allOf:
+      - $ref: "#/definitions/ListDataResponse"
+    type: "object"
+    properties:
+      data:
+        type: "array"
+        items:
+          $ref: "#/definitions/CarrierResponse"
+  OfferResponse:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        description: "ID of the Offer in the UUID-4 format"
+        example: "ac910006-e8b3-4229-b928-eafdeb7d75c3"
+      title:
+        type: "string"
+        description: "Title of the Offer"
+        example: "R$7,00 + 50% bonus"
+      description:
+        type: "string"
+        description: "Description of the Offer"
+        example: "Recarregue 7 reais e ganhe recarga em dobro"
+      amount:
+        type: "number"
+        description: "Amount to be paid by the customer in cents notation 1000 = R$10,00"
+        example: "1000"
+      range_amount:
+        type: "object"
+        properties:
+          min:
+            type: "number"
+            description: "Minimal amount accepted in the topup in cents notation 1000 = R$10,00"
+            example: "500"
+          max:
+            type: "number"
+            description: "Maximum amount accepted in the topup in cents notation 1000 = R$10,00"
+            example: "1000"
+      expire_at:
+        type: "string"
+        format: "date"
+        description: "When the offer gets expired"
+        example: "2020-02-10T00:26:06Z"
+      bonus:
+        type: "object"
+        properties:
+          percentage:
+            type: "number"
+            description: "Percentage given as additional bonus in the total package"
+            example: "85"
+          amount:
+            type: "number"
+            format: "currency"
+            description: "Amount given as additional bonus in the total package in cents nottation 1000 = R$10,00"
+            example: "1000"
+          expire_at:
+            type: "string"
+            format: "date"
+            description: "When the bonus gets expired. Bonuses can be valid for a certain amount of time"
+            example: "2020-02-10T00:26:06Z"
+  GetOffersResponse:
+    allOf:
+      - $ref: "#/definitions/ListDataResponse"
+    type: "object"
+    properties:
+      data:
+        type: "array"
+        items:
+          $ref: "#/definitions/OfferResponse"
+  TopUpBasicInfo:
+    type: "object"
+    properties:
+      order_id:
+        type: "string"
+        description: "Unique order id from the client"
+        example: "ac910006-e8b3-4229-b928-eafdeb7d75c3"
+      offer_id:
+        type: "string"
+        description: "Offer ID listed by carrier offers in the UUID-4 format"
+        example: "ac910006-e8b3-4229-b928-eafdeb7d75c3"
+      amount:
+        type: "number"
+        description: "Amount of offer, either a range amount or a fixed amount based on the offer selected"
+        example: "500"
+      phone:
+        type: "object"
+        properties:
+          area_code:
+            type: "string"
+            description: "Area code of the phone number"
+            example: "11"
+          number:
+            type: "string"
+            description: "Phone number without area code"
+            example: "999999999"
+  TopUpRequest:
+    type: "object"
+    allOf:
+      - $ref: "#/definitions/TopUpBasicInfo"
+  TopUpResponse:
+    type: "object"
+    allOf:
+      - $ref: "#/definitions/TopUpBasicInfo"
+    properties:
+      id:
+        type: "string"
+        description: "ID of the topup in the UUID-4 format"
+        example: "ac910006-e8b3-4229-b928-eafdeb7d75c3"
+      nsu:
+        type: "string"
+        description: "Unique order id from the carrier"
+        example: "ABC123456"
+      status:
+        type: "string"
+        example: "created"
+        enum: ["created", "confirmed", "processed"]
+  GetTopUpsResponse:
+    allOf:
+      - $ref: "#/definitions/ListDataResponse"
+    type: "object"
+    properties:
+      data:
+        type: "array"
+        items:
+          $ref: "#/definitions/TopUpResponse"
